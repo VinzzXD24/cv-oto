@@ -142,10 +142,19 @@
         }
         
         textarea {
-            min-height: 180px;
             resize: vertical;
             font-family: monospace;
             line-height: 1.6;
+        }
+        
+        .contact-textarea {
+            min-height: 180px;
+        }
+        
+        .name-textarea {
+            min-height: 80px;
+            max-height: 150px;
+            font-size: 15px;
         }
         
         .btn {
@@ -459,6 +468,18 @@
             font-size: 14px;
         }
         
+        /* Placeholder styling */
+        ::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* Focus state for placeholders */
+        input:focus::placeholder,
+        textarea:focus::placeholder {
+            color: #ccc;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px 15px;
@@ -511,7 +532,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-address-book"></i> Text to VCF Generator</h1>
-            <p class="subtitle">CV BY VINZZ</p>
+            <p class="subtitle">𝐁𝐘 𝟐𝟒𝟑 𝐂𝐎𝐌𝐌𝐔𝐍𝐈𝐓𝐘</p>
         </header>
         
         <div class="card">
@@ -535,33 +556,35 @@
                 </div>
             </div>
             
+            <!-- Input dengan placeholder yang jelas -->
             <div class="form-group">
                 <label for="baseName"><i class="fas fa-tag"></i> Nama Dasar Kontak:</label>
-                <input type="text" id="baseName" value="ADMIN VINZZ" placeholder="Misal: ADMIN VINZZ, Pelanggan, dll">
-                <small>Contoh: "ADMIN VINZZ" akan menghasilkan nama "ADMIN VINZZ 1", "ADMIN VINZZ 2", dst</small>
+                <input type="text" id="baseName" placeholder="Contoh: ADMIN VINZZ">
+                <small>Placeholder akan muncul saat input kosong</small>
             </div>
             
+            <!-- Input dengan placeholder yang jelas -->
             <div class="form-group">
                 <label for="fileNameBase"><i class="fas fa-file-signature"></i> Nama Dasar File Output:</label>
-                <input type="text" id="fileNameBase" value="ADMIN VINZZ" placeholder="Misal: ADMIN VINZZ, Kontak, Pelanggan">
-                <small>Contoh: "ADMIN VINZZ" akan menghasilkan nama file "ADMIN VINZZ 1.vcf", "ADMIN VINZZ 2.vcf", dst</small>
+                <input type="text" id="fileNameBase" placeholder="Contoh: ADMIN VINZZ 1-50">
+                <small>Placeholder akan muncul saat input kosong</small>
             </div>
             
             <div class="form-group">
                 <label for="contactsPerFile"><i class="fas fa-sliders-h"></i> Jumlah Kontak per File:</label>
                 <div class="contacts-input">
-                    <input type="number" id="contactsPerFile" min="1" max="1000" value="50" placeholder="Masukkan jumlah kontak per file">
+                    <input type="number" id="contactsPerFile" min="1" max="1000" value="50" placeholder="Masukkan angka (contoh: 50)">
                     <button class="btn" id="applyBtn" style="width: auto; padding: 14px 20px;">
                         <i class="fas fa-check"></i> Terapkan
                     </button>
                 </div>
-                <small>Masukkan angka antara 1-1000</small>
+                <small>Placeholder akan muncul saat input kosong</small>
             </div>
             
             <div class="form-group">
-                <label for="contactList"><i class="fas fa-mobile-alt"></i> Atau masukkan kontak manual:</label>
-                <textarea id="contactList" placeholder="Masukkan nomor telepon, satu nomor per baris. Contoh:
-Masukin Nomer +62xxxxx"></textarea>
+                <label for="contactList"><i class="fas fa-mobile-alt"></i> Masukkan kontak:</label>
+                <textarea id="contactList" class="contact-textarea" placeholder="Masukkan nomor telepon, satu nomor per baris. Contoh:
+        +628xxxxxxxxx"></textarea>
             </div>
             
             <div class="filename-preview">
@@ -588,13 +611,12 @@ Masukin Nomer +62xxxxx"></textarea>
             <h3><i class="fas fa-info-circle"></i> Cara Penggunaan:</h3>
             <ol>
                 <li><strong>Upload file TXT</strong> berisi daftar nomor telepon (satu nomor per baris)</li>
-                <li><strong>Masukkan nama dasar kontak</strong> untuk kontak di vCard (misal: "ADMIN VINZZ")</li>
-                <li><strong>Masukkan nama dasar file</strong> untuk file output (misal: "ADMIN VINZZ")</li>
-                <li><strong>Tentukan jumlah kontak per file</strong> (misal: 50)</li>
+                <li><strong>Masukkan nama dasar kontak</strong> untuk kontak di vCard</li>
+                <li><strong>Masukkan nama dasar file</strong> untuk file output</li>
+                <li><strong>Tentukan jumlah kontak per file</strong></li>
                 <li>Klik tombol <strong>"Generate File VCF"</strong> untuk membuat file</li>
-                <li>File akan otomatis diunduh dalam format .vcf (vCard)</li>
             </ol>
-            <p><strong>Perbaikan:</strong> Sekarang semua file akan terdownload dengan baik, bahkan untuk jumlah besar (5000 kontak)</p>
+            <p><strong>Placeholder:</strong> Teks abu-abu akan muncul di setiap input saat kosong, dan akan menghilang saat Anda mulai mengetik</p>
         </div>
         
         <div class="counter">
@@ -631,20 +653,308 @@ END:VCARD
         </div>
         
         <div class="format-example">
-            <h4><i class="fas fa-lightbulb"></i> Solusi Download Semua File:</h4>
-            <p>Saya telah memperbaiki masalah download dengan:</p>
-            <ul style="margin-left: 20px; margin-top: 10px;">
-                <li>Menambahkan jeda antara setiap download file</li>
-                <li>Menggunakan sistem download berurutan</li>
-                <li>Menambahkan progress bar untuk monitoring</li>
-                <li>Memperbaiki manajemen memori untuk banyak file</li>
-            </ul>
+            <h4><i class="fas fa-comment-alt"></i> Contoh Placeholder:</h4>
+            <p>Placeholder adalah teks abu-abu yang muncul di dalam input saat belum diisi:</p>
+            <div style="margin: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <div style="margin-bottom: 10px;">
+                    <label>Nama Dasar Kontak:</label>
+                    <input type="text" placeholder="Contoh: ADMIN VINZZ" style="width: 100%; padding: 8px; margin-top: 5px;" disabled>
+                </div>
+                <div>
+                    <label>Nama Dasar File Output:</label>
+                    <input type="text" placeholder="Contoh: Kontak" style="width: 100%; padding: 8px; margin-top: 5px;" disabled>
+                </div>
+            </div>
         </div>
         
         <footer>
-            <p><i class="fas fa-code"></i> © 2023 Text to VCF Generator | Perbaikan Download Semua File</p>
+            <p><i class="fas fa-code"></i> © 2023 Text to VCF Generator | Placeholder Implemented</p>
         </footer>
     </div>
     
     <script>
-        document.addEventListener('DOMContent
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactList = document.getElementById('contactList');
+            const baseName = document.getElementById('baseName');
+            const fileNameBase = document.getElementById('fileNameBase');
+            const contactsPerFileInput = document.getElementById('contactsPerFile');
+            const generateBtn = document.getElementById('generateBtn');
+            const applyBtn = document.getElementById('applyBtn');
+            const previewOutput = document.getElementById('previewOutput');
+            const totalContacts = document.getElementById('totalContacts');
+            const fileCount = document.getElementById('fileCount');
+            const contactsPerFileDisplay = document.getElementById('contactsPerFileDisplay');
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            const filenamePreview = document.getElementById('filename-preview');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const contactCount = document.getElementById('contactCount');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressStatus = document.getElementById('progressStatus');
+            const fileProgress = document.getElementById('fileProgress');
+            const totalFilesElement = document.getElementById('totalFiles');
+            
+            // Initialize contacts per file value
+            let contactsPerFileValue = 50;
+            let uploadedContacts = [];
+            let isGenerating = false;
+            
+            // Event listener untuk upload area
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // Fungsi untuk menangani upload file
+            function handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Validasi jenis file
+                if (!file.name.endsWith('.txt')) {
+                    showNotification('Hanya file TXT yang diizinkan', 'error');
+                    return;
+                }
+                
+                // Validasi ukuran file (maks 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification('Ukuran file maksimal 10MB', 'error');
+                    return;
+                }
+                
+                // Update info file
+                fileName.textContent = file.name;
+                fileSize.textContent = Math.round(file.size / 1024);
+                fileInfo.style.display = 'flex';
+                
+                // Set nama dasar file dari nama file
+                const baseFileName = file.name.replace('.txt', '');
+                fileNameBase.value = baseFileName;
+                
+                // Baca isi file
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    contactList.value = content;
+                    uploadedContacts = content.split('\n').filter(line => line.trim() !== '');
+                    contactCount.textContent = uploadedContacts.length;
+                    updateCounters();
+                };
+                reader.readAsText(file);
+            }
+            
+            // Update counters when input changes
+            contactList.addEventListener('input', updateCounters);
+            baseName.addEventListener('input', updateCounters);
+            fileNameBase.addEventListener('input', updateCounters);
+            
+            // Apply button click handler
+            applyBtn.addEventListener('click', function() {
+                const value = parseInt(contactsPerFileInput.value);
+                
+                if (isNaN(value) || value < 1 || value > 1000) {
+                    showNotification('Masukkan angka antara 1-1000', 'error');
+                    contactsPerFileInput.focus();
+                    return;
+                }
+                
+                contactsPerFileValue = value;
+                contactsPerFileDisplay.textContent = value;
+                updateCounters();
+                showNotification(`Jumlah kontak per file diatur ke ${value}`, 'success');
+            });
+            
+            // Handle Enter key on contactsPerFile input
+            contactsPerFileInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyBtn.click();
+                }
+            });
+            
+            function updateCounters() {
+                const contacts = contactList.value.trim().split('\n').filter(line => line.trim() !== '');
+                
+                totalContacts.textContent = contacts.length;
+                contactsPerFileDisplay.textContent = contactsPerFileValue;
+                
+                // Calculate number of files
+                const files = contacts.length > 0 ? Math.ceil(contacts.length / contactsPerFileValue) : 0;
+                fileCount.textContent = files;
+                
+                // Generate preview
+                generatePreview(contacts);
+                
+                // Update filename preview
+                updateFilenamePreview(files);
+            }
+            
+            function updateFilenamePreview(totalFiles) {
+                const nameBase = fileNameBase.value.trim() || 'File';
+                
+                if (totalFiles === 0) {
+                    filenamePreview.textContent = "Masukkan kontak terlebih dahulu";
+                    return;
+                }
+                
+                if (totalFiles === 1) {
+                    filenamePreview.textContent = `${nameBase} 1.vcf`;
+                } else if (totalFiles <= 5) {
+                    const files = Array.from({length: totalFiles}, (_, i) => `${nameBase} ${i+1}.vcf`).join(', ');
+                    filenamePreview.textContent = files;
+                } else {
+                    filenamePreview.textContent = `${nameBase} 1.vcf, ${nameBase} 2.vcf, ..., ${nameBase} ${totalFiles}.vcf`;
+                }
+            }
+            
+            function generatePreview(contacts) {
+                if (contacts.length === 0) {
+                    previewOutput.textContent = 'Masukkan daftar kontak untuk melihat preview';
+                    return;
+                }
+                
+                let preview = '';
+                const nameBase = baseName.value.trim() || 'Kontak';
+                
+                // Show first 2 contacts as preview
+                for (let i = 0; i < Math.min(2, contacts.length); i++) {
+                    const contactNumber = contacts[i].trim();
+                    preview += `BEGIN:VCARD
+VERSION:3.0
+FN:${nameBase} ${i+1}
+TEL;TYPE=CELL:${contactNumber}
+END:VCARD\n\n`;
+                }
+                
+                if (contacts.length > 2) {
+                    preview += `... (${contacts.length - 2} kontak lainnya)`;
+                }
+                
+                previewOutput.textContent = preview;
+            }
+            
+            generateBtn.addEventListener('click', function() {
+                if (isGenerating) {
+                    showNotification('Sedang dalam proses generasi file...', 'error');
+                    return;
+                }
+                
+                const contacts = contactList.value.trim().split('\n').filter(line => line.trim() !== '');
+                
+                if (contacts.length === 0) {
+                    showNotification('Masukkan setidaknya satu nomor kontak!', 'error');
+                    return;
+                }
+                
+                if (contactsPerFileValue <= 0) {
+                    showNotification('Jumlah kontak per file harus lebih dari 0', 'error');
+                    contactsPerFileInput.focus();
+                    return;
+                }
+                
+                const contactNameBase = baseName.value.trim() || 'Kontak';
+                const fileNameBaseValue = fileNameBase.value.trim() || 'File';
+                
+                // Generate VCF files
+                generateVCFFiles(contacts, contactNameBase, fileNameBaseValue, contactsPerFileValue);
+            });
+            
+            function generateVCFFiles(contacts, contactNameBase, fileNameBase, perFile) {
+                isGenerating = true;
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Sedang Memproses...';
+                
+                const totalFiles = Math.ceil(contacts.length / perFile);
+                totalFilesElement.textContent = totalFiles;
+                fileProgress.textContent = '0';
+                progressStatus.textContent = 'Memulai proses download';
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                
+                let filesGenerated = 0;
+                
+                function downloadNextFile() {
+                    if (filesGenerated >= totalFiles) {
+                        // Selesai
+                        isGenerating = false;
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = '<i class="fas fa-file-export"></i> Generate File VCF';
+                        progressStatus.textContent = 'Selesai!';
+                        showNotification(`${totalFiles} file VCF berhasil diunduh!`, 'success');
+                        return;
+                    }
+                    
+                    const start = filesGenerated * perFile;
+                    const end = Math.min(start + perFile, contacts.length);
+                    
+                    let vcfContent = '';
+                    
+                    for (let i = start; i < end; i++) {
+                        const contactNumber = contacts[i].trim();
+                        vcfContent += `BEGIN:VCARD
+VERSION:3.0
+FN:${contactNameBase} ${i+1}
+TEL;TYPE=CELL:${contactNumber}
+END:VCARD\n\n`;
+                    }
+                    
+                    // Update progress
+                    filesGenerated++;
+                    const progress = Math.round((filesGenerated / totalFiles) * 100);
+                    progressBar.style.width = `${progress}%`;
+                    fileProgress.textContent = filesGenerated;
+                    progressStatus.textContent = `Mengunduh file ${filesGenerated} dari ${totalFiles}`;
+                    
+                    // Create download link
+                    const blob = new Blob([vcfContent], { type: 'text/vcard' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${fileNameBase} ${filesGenerated}.vcf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Clean up
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        // Download file berikutnya dengan jeda
+                        setTimeout(downloadNextFile, 300); // Jeda 300ms
+                    }, 100);
+                }
+                
+                downloadNextFile();
+            }
+            
+            function showNotification(message, type = 'success') {
+                notificationText.textContent = message;
+                
+                if (type === 'success') {
+                    notification.style.background = 'linear-gradient(to right, #28a745, #218838)';
+                    notification.classList.remove('error');
+                } else {
+                    notification.style.background = 'linear-gradient(to right, #dc3545, #c82333)';
+                    notification.classList.add('error');
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Initialize counters
+            updateCounters();
+            
+            // Add sample contacts
+            contactList.value = "+233249898841\n+233249898844\n+233249898842\n+233249898840\n+233249898843\n+233249898845\n+233249898846\n+233249898847\n+233249898848\n+233249898849\n+233249898850\n+233249898851\n+233249898852";
+            updateCounters();
+        });
+    </script>
+</body>
+</html>
