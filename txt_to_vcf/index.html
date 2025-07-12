@@ -177,14 +177,6 @@
             overflow: hidden;
         }
         
-        .btn-telegram {
-            background: linear-gradient(to right, var(--telegram), #006699);
-        }
-        
-        .btn-download {
-            background: linear-gradient(to right, var(--success), #218838);
-        }
-        
         .btn:before {
             content: '';
             position: absolute;
@@ -392,10 +384,6 @@
             background: var(--error);
         }
         
-        .notification.telegram {
-            background: var(--telegram);
-        }
-        
         .notification.show {
             transform: translateX(0);
         }
@@ -509,16 +497,6 @@
             gap: 10px;
         }
         
-        .btn-container {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .btn-container button {
-            flex: 1;
-        }
-        
         @media (max-width: 768px) {
             .container {
                 padding: 20px 15px;
@@ -549,10 +527,6 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            
-            .btn-container {
-                flex-direction: column;
-            }
         }
         
         @keyframes pulse {
@@ -561,18 +535,8 @@
             100% { transform: scale(1); }
         }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        
         .pulse {
             animation: pulse 1.5s infinite;
-        }
-        
-        .shake {
-            animation: shake 0.5s ease-in-out;
         }
     </style>
 </head>
@@ -654,21 +618,16 @@
                 <span>File: <span id="fileProgress">0</span>/<span id="totalFiles">0</span></span>
             </div>
             
+            <button id="generateBtn" class="btn pulse">
+                <i class="fas fa-file-export"></i> Generate File VCF
+            </button>
+            
             <div class="telegram-section">
-                <h3><i class="fab fa-telegram"></i> Kirim ke Telegram</h3>
+                <h3><i class="fab fa-telegram"></i> Catatan untuk Telegram</h3>
                 <div class="form-group">
                     <label for="telegramUsername"><i class="fas fa-user"></i> Username Telegram:</label>
-                    <input type="text" id="telegramUsername" placeholder="Contoh: WA6731">
-                    <small>Wajib diisi untuk mengirim file melalui Telegram</small>
-                </div>
-                
-                <div class="btn-container">
-                    <button id="downloadBtn" class="btn btn-download pulse">
-                        <i class="fas fa-download"></i> Unduh File
-                    </button>
-                    <button id="telegramBtn" class="btn btn-telegram">
-                        <i class="fab fa-telegram"></i> Kirim via Telegram
-                    </button>
+                    <input type="text" id="telegramUsername" placeholder="Contoh: vinzz24">
+                    <small>Untuk keperluan lain, tidak wajib diisi</small>
                 </div>
             </div>
         </div>
@@ -680,8 +639,8 @@
                 <li><strong>Masukkan nama dasar kontak</strong> untuk kontak di vCard</li>
                 <li><strong>Masukkan nama dasar file</strong> untuk file output</li>
                 <li><strong>Tentukan jumlah kontak per file</strong></li>
-                <li>Pilih <strong>"Unduh File"</strong> untuk mengunduh langsung atau <strong>"Kirim via Telegram"</strong> untuk mengirim ke Telegram</li>
-                <li><strong>Untuk Telegram</strong>: wajib mengisi username Telegram penerima</li>
+                <li>Klik tombol <strong>"Generate File VCF"</strong> untuk membuat dan mengunduh file</li>
+                <li>Untuk keperluan Telegram, masukkan username (opsional)</li>
             </ol>
         </div>
         
@@ -729,8 +688,7 @@ END:VCARD
             const baseName = document.getElementById('baseName');
             const fileNameBase = document.getElementById('fileNameBase');
             const contactsPerFileInput = document.getElementById('contactsPerFile');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const telegramBtn = document.getElementById('telegramBtn');
+            const generateBtn = document.getElementById('generateBtn');
             const applyBtn = document.getElementById('applyBtn');
             const previewOutput = document.getElementById('previewOutput');
             const totalContacts = document.getElementById('totalContacts');
@@ -888,26 +846,7 @@ END:VCARD\n\n`;
                 previewOutput.textContent = preview;
             }
             
-            // Fungsi untuk mengunduh file
-            downloadBtn.addEventListener('click', function() {
-                generateFiles('download');
-            });
-            
-            // Fungsi untuk mengirim ke Telegram
-            telegramBtn.addEventListener('click', function() {
-                // Validasi username Telegram
-                if (!telegramUsername.value.trim()) {
-                    showNotification('Isi username Telegram terlebih dahulu!', 'error');
-                    telegramUsername.classList.add('shake');
-                    setTimeout(() => telegramUsername.classList.remove('shake'), 500);
-                    telegramUsername.focus();
-                    return;
-                }
-                
-                generateFiles('telegram');
-            });
-            
-            function generateFiles(action) {
+            generateBtn.addEventListener('click', function() {
                 if (isGenerating) {
                     showNotification('Sedang dalam proses generasi file...', 'error');
                     return;
@@ -930,24 +869,18 @@ END:VCARD\n\n`;
                 const fileNameBaseValue = fileNameBase.value.trim() || 'File';
                 
                 // Generate VCF files
-                generateVCFFiles(contacts, contactNameBase, fileNameBaseValue, contactsPerFileValue, action);
-            }
+                generateVCFFiles(contacts, contactNameBase, fileNameBaseValue, contactsPerFileValue);
+            });
             
-            function generateVCFFiles(contacts, contactNameBase, fileNameBase, perFile, action) {
+            function generateVCFFiles(contacts, contactNameBase, fileNameBase, perFile) {
                 isGenerating = true;
-                downloadBtn.disabled = true;
-                telegramBtn.disabled = true;
-                
-                if (action === 'download') {
-                    downloadBtn.textContent = 'Sedang Memproses...';
-                } else {
-                    telegramBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                }
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Sedang Memproses...';
                 
                 const totalFiles = Math.ceil(contacts.length / perFile);
                 totalFilesElement.textContent = totalFiles;
                 fileProgress.textContent = '0';
-                progressStatus.textContent = 'Memulai proses generasi file';
+                progressStatus.textContent = 'Memulai proses download';
                 progressContainer.style.display = 'block';
                 progressBar.style.width = '0%';
                 
@@ -957,17 +890,10 @@ END:VCARD\n\n`;
                     if (filesGenerated >= totalFiles) {
                         // Selesai
                         isGenerating = false;
-                        downloadBtn.disabled = false;
-                        telegramBtn.disabled = false;
-                        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Unduh File';
-                        telegramBtn.innerHTML = '<i class="fab fa-telegram"></i> Kirim via Telegram';
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = '<i class="fas fa-file-export"></i> Generate File VCF';
                         progressStatus.textContent = 'Selesai!';
-                        
-                        if (action === 'download') {
-                            showNotification(`${totalFiles} file VCF berhasil diunduh!`, 'success');
-                        } else {
-                            showNotification(`File siap dikirim ke Telegram!`, 'telegram');
-                        }
+                        showNotification(`${totalFiles} file VCF berhasil diunduh!`, 'success');
                         return;
                     }
                     
@@ -990,39 +916,21 @@ END:VCARD\n\n`;
                     const progress = Math.round((filesGenerated / totalFiles) * 100);
                     progressBar.style.width = `${progress}%`;
                     fileProgress.textContent = filesGenerated;
-                    progressStatus.textContent = `Membuat file ${filesGenerated} dari ${totalFiles}`;
+                    progressStatus.textContent = `Mengunduh file ${filesGenerated} dari ${totalFiles}`;
                     
                     // Create download link
                     const blob = new Blob([vcfContent], { type: 'text/vcard' });
                     const url = URL.createObjectURL(blob);
                     
-                    if (action === 'download') {
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${fileNameBase} ${filesGenerated}.vcf`;
-                        document.body.appendChild(a);
-                        a.click();
-                    } else if (action === 'telegram') {
-                        // Untuk Telegram, kita simpan dulu semua file
-                        // Di sini kita hanya akan membuat satu file sebagai contoh
-                        // Pada implementasi nyata, Anda perlu mengumpulkan semua file
-                        // dan mengirimnya ke Telegram menggunakan API
-                        // Untuk demo, kita akan buat file pertama saja
-                        if (filesGenerated === 1) {
-                            const a = document.createElement('a');
-                            a.href = `https://t.me/${telegramUsername.value.trim()}`;
-                            a.target = '_blank';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                        }
-                    }
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${fileNameBase} ${filesGenerated}.vcf`;
+                    document.body.appendChild(a);
+                    a.click();
                     
                     // Clean up
                     setTimeout(() => {
-                        if (action === 'download') {
-                            document.body.removeChild(a);
-                        }
+                        document.body.removeChild(a);
                         URL.revokeObjectURL(url);
                         
                         // Download file berikutnya dengan jeda
@@ -1038,15 +946,10 @@ END:VCARD\n\n`;
                 
                 if (type === 'success') {
                     notification.style.background = 'linear-gradient(to right, #28a745, #218838)';
-                    notification.classList.remove('error', 'telegram');
-                } else if (type === 'error') {
-                    notification.style.background = 'linear-gradient(to right, #dc3545, #c82333)';
-                    notification.classList.remove('telegram');
-                    notification.classList.add('error');
-                } else if (type === 'telegram') {
-                    notification.style.background = 'linear-gradient(to right, #0088cc, #006699)';
                     notification.classList.remove('error');
-                    notification.classList.add('telegram');
+                } else {
+                    notification.style.background = 'linear-gradient(to right, #dc3545, #c82333)';
+                    notification.classList.add('error');
                 }
                 
                 notification.classList.add('show');
@@ -1060,7 +963,7 @@ END:VCARD\n\n`;
             updateCounters();
             
             // Add sample contacts
-            contactList.value = "+233249898841";
+            contactList.value = "+233249898841\n+233249898844\n+233249898842\n+233249898840\n+233249898843\n+233249898845\n+233249898846\n+233249898847\n+233249898848\n+233249898849\n+233249898850\n+233249898851\n+233249898852";
             updateCounters();
         });
     </script>
