@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Otomatis VCF ke TXT</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            width: 90%;
+            max-width: 1000px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 2.8rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .upload-section, .result-section {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .upload-section:hover, .result-section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+        
+        .drop-area {
+            border: 3px dashed #3498db;
+            border-radius: 12px;
+            padding: 35px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #eaf6ff;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .drop-area:hover, .drop-area.active {
+            background-color: #d1ebff;
+            border-color: #2980b9;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2);
+        }
+        
+        .drop-area i {
+            font-size: 54px;
+            color: #3498db;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-area:hover i {
+            transform: scale(1.1);
+        }
+        
+        .drop-area p {
+            color: #7f8c8d;
+            margin: 12px 0;
+            font-size: 1.1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9, #1c6ca7);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-download:hover {
+            background: linear-gradient(135deg, #219653, #1e8449);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .result-textarea {
+            width: 100%;
+            height: 250px;
+            padding: 18px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            resize: vertical;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .examples {
+            display: flex;
+            gap: 25px;
+            margin-top: 35px;
+        }
+        
+        .example-card {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .example-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .example-title {
+            color: #2c3e50;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #2c3e50, #1a2530);
+            color: #ecf0f1;
+            padding: 18px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            line-height: 1.7;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .statistics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            padding: 18px;
+            background: linear-gradient(135deg, #eaf6ff, #d1ebff);
+            border-radius: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-item {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-icon {
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: #3498db;
+        }
+        
+        .stat-value {
+            font-size: 26px;
+            color: #3498db;
+            font-weight: 700;
+        }
+        
+        .file-info {
+            background: #eaf6ff;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 16px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        
+        .file-info i {
+            color: #3498db;
+            font-size: 24px;
+        }
+        
+        .filename-input {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        
+        .filename-input label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filename-input input {
+            padding: 14px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .filename-input input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 35px;
+            color: #7f8c8d;
+            font-size: 1rem;
+            padding-top: 25px;
+            border-top: 2px dashed #e0e0e0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 18px 30px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 17px;
+            font-weight: 500;
+            max-width: 400px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo i {
+            font-size: 48px;
+            color: #3498db;
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #8e44ad);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .examples {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-msg">File berhasil diunggah!</span>
+    </div>
+    
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-file-contract"></i>
+        </div>
+        
+        <header>
+            <h1><i class="fas fa-exchange-alt"></i> Konverter Otomatis VCF ke TXT</h1>
+            <p class="subtitle">Unggah file VCF dan konversi ke format TXT terjadi secara otomatis. Unduh hasilnya dengan nama file yang Anda tentukan!</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="upload-section">
+                <h2 class="section-title"><i class="fas fa-cloud-upload-alt"></i> Unggah File VCF</h2>
+                <div class="drop-area" id="dropArea">
+                    <i class="fas fa-file-import"></i>
+                    <p>Seret file VCF ke sini atau</p>
+                    <button class="btn" id="browseBtn"><i class="fas fa-folder-open"></i> Pilih File</button>
+                    <p>Format file: .vcf (vCard)</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".vcf">
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="loader"></div>
+                    <p>Memproses file...</p>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+                
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <i class="fas fa-file-alt"></i>
+                    <div>
+                        <strong id="fileName"></strong>
+                        <div id="fileSize"></div>
+                    </div>
+                </div>
+                
+                <div class="statistics">
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-file"></i></div>
+                        <div>File Terpilih</div>
+                        <div class="stat-value" id="fileCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div>Kontak Ditemukan</div>
+                        <div class="stat-value" id="contactCount">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <h2 class="section-title"><i class="fas fa-file-export"></i> Hasil Konversi</h2>
+                <textarea class="result-textarea" id="resultText" placeholder="Hasil konversi akan muncul di sini..." readonly></textarea>
+                
+                <div class="filename-input">
+                    <label for="customFilename"><i class="fas fa-edit"></i> Nama File Hasil:</label>
+                    <input type="text" id="customFilename" placeholder="Masukkan nama file hasil" value="kontak_hasil_konversi">
+                </div>
+                
+                <button class="btn btn-download" id="downloadBtn" disabled>
+                    <i class="fas fa-download"></i> Unduh File TXT
+                </button>
+            </div>
+        </div>
+        
+        <div class="examples">
+            <div class="example-card">
+                <h3 class="example-title"><i class="fas fa-file-code"></i> Contoh Format VCF</h3>
+                <div class="code-block">
+BEGIN:VCARD
+VERSION:3.0
+FN:ADMIN VINZZ 1
+TEL;TYPE=CELL:+233249898841
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:ADMIN VINZZ 2
+TEL;TYPE=CELL:+233249898842
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:ADMIN VINZZ 3
+TEL;TYPE=CELL:+233249898843
+END:VCARD
+                </div>
+            </div>
+            
+            <div class="example-card">
+                <h3 class="example-title"><i class="fas fa-file-lines"></i> Hasil Format TXT</h3>
+                <div class="code-block">
++233249898841
++233249898842
++233249898843
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Konverter Otomatis VCF ke TXT &copy; 2023 | Konversi langsung saat unggah file!</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const resultText = document.getElementById('resultText');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const fileCountEl = document.getElementById('fileCount');
+            const contactCountEl = document.getElementById('contactCount');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const notification = document.getElementById('notification');
+            const notificationMsg = document.getElementById('notification-msg');
+            const customFilenameInput = document.getElementById('customFilename');
+            const loading = document.getElementById('loading');
+            const progress = document.getElementById('progress');
+            
+            let selectedFile = null;
+            let convertedNumbers = [];
+            
+            // Event listeners untuk area drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('active');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('active');
+            }
+            
+            // Handle file drop
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            // Handle file input
+            browseBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', () => {
+                handleFiles(fileInput.files);
+            });
+            
+            // Fungsi untuk menangani file yang dipilih
+            function handleFiles(files) {
+                if (files.length === 0) return;
+                
+                selectedFile = files[0];
+                
+                // Validasi ekstensi file
+                if (!selectedFile.name.toLowerCase().endsWith('.vcf')) {
+                    showNotification('Silakan pilih file dengan format .vcf', true);
+                    resetFile();
+                    return;
+                }
+                
+                // Tampilkan info file
+                fileInfo.style.display = 'flex';
+                fileName.textContent = selectedFile.name;
+                fileSize.textContent = formatFileSize(selectedFile.size);
+                
+                fileCountEl.textContent = '1';
+                
+                // Set default nama file hasil
+                const baseName = selectedFile.name.replace('.vcf', '').replace(/\.[^/.]+$/, "");
+                customFilenameInput.value = `${baseName}_konversi`;
+                
+                // Tampilkan loading dan mulai konversi otomatis
+                showLoading();
+                processFile(selectedFile);
+            }
+            
+            function resetFile() {
+                selectedFile = null;
+                fileInput.value = '';
+                fileInfo.style.display = 'none';
+                fileCountEl.textContent = '0';
+                contactCountEl.textContent = '0';
+                resultText.value = '';
+                downloadBtn.disabled = true;
+                customFilenameInput.value = 'kontak_hasil_konversi';
+                hideLoading();
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Proses file secara otomatis
+            function processFile(file) {
+                const reader = new FileReader();
+                
+                // Simulasi progress bar
+                let progressValue = 0;
+                const progressInterval = setInterval(() => {
+                    progressValue += 5;
+                    progress.style.width = `${progressValue}%`;
+                    if (progressValue >= 100) clearInterval(progressInterval);
+                }, 100);
+                
+                reader.onload = function(e) {
+                    try {
+                        const vcfContent = e.target.result;
+                        convertedNumbers = extractPhoneNumbers(vcfContent);
+                        
+                        if (convertedNumbers.length === 0) {
+                            resultText.value = 'Tidak ditemukan nomor telepon dalam file VCF.';
+                            contactCountEl.textContent = '0';
+                            downloadBtn.disabled = true;
+                            showNotification('Tidak ditemukan nomor telepon', true);
+                        } else {
+                            resultText.value = convertedNumbers.join('\n');
+                            contactCountEl.textContent = convertedNumbers.length;
+                            downloadBtn.disabled = false;
+                            showNotification(`Berhasil mengekstrak ${convertedNumbers.length} nomor telepon`);
+                        }
+                        
+                        // Selesai proses
+                        setTimeout(() => {
+                            hideLoading();
+                            progress.style.width = '0%';
+                        }, 500);
+                    } catch (error) {
+                        resultText.value = 'Terjadi kesalahan saat memproses file.';
+                        console.error(error);
+                        showNotification('Terjadi kesalahan saat memproses file', true);
+                        hideLoading();
+                    }
+                };
+                
+                reader.onerror = function() {
+                    resultText.value = 'Gagal membaca file.';
+                    showNotification('Gagal membaca file', true);
+                    hideLoading();
+                };
+                
+                // Delay untuk simulasi loading
+                setTimeout(() => {
+                    reader.readAsText(file);
+                }, 1000);
+            }
+            
+            // Fungsi untuk ekstrak nomor telepon dari VCF
+            function extractPhoneNumbers(vcfContent) {
+                const numbers = [];
+                const lines = vcfContent.split('\n');
+                let currentNumber = null;
+                
+                for (const line of lines) {
+                    if (line.startsWith('TEL;') || line.startsWith('TEL:')) {
+                        // Mencari bagian nomor telepon
+                        const parts = line.split(':');
+                        if (parts.length > 1) {
+                            let number = parts[1].trim();
+                            
+                            // Normalisasi nomor (hapus spasi, tanda hubung, dll.)
+                            number = number.replace(/[^\d+]/g, '');
+                            
+                            // Pastikan nomor dimulai dengan '+'
+                            if (number && !number.startsWith('+')) {
+                                number = '+' + number;
+                            }
+                            
+                            if (number) {
+                                currentNumber = number;
+                                numbers.push(number);
+                            }
+                        }
+                    } else if (line.startsWith('item') && line.includes('TEL')) {
+                        // Handle alternative format
+                        const telParts = line.split(':');
+                        if (telParts.length > 1) {
+                            let number = telParts[1].trim();
+                            number = number.replace(/[^\d+]/g, '');
+                            if (number && !number.startsWith('+')) {
+                                number = '+' + number;
+                            }
+                            if (number) {
+                                numbers.push(number);
+                            }
+                        }
+                    }
+                }
+                
+                // Remove duplicates
+                return [...new Set(numbers)];
+            }
+            
+            // Download hasil konversi
+            downloadBtn.addEventListener('click', () => {
+                if (convertedNumbers.length === 0) return;
+                
+                const content = convertedNumbers.join('\n');
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const filename = customFilenameInput.value.trim() || 'kontak_hasil_konversi';
+                const fullFilename = filename.endsWith('.txt') ? filename : `${filename}.txt`;
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fullFilename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+                
+                showNotification(`File "${fullFilename}" berhasil diunduh!`);
+            });
+            
+            // Fungsi untuk menampilkan notifikasi
+            function showNotification(message, isError = false) {
+                notificationMsg.textContent = message;
+                notification.className = 'notification';
+                
+                if (isError) {
+                    notification.classList.add('error');
+                    notification.querySelector('i').className = 'fas fa-exclamation-circle';
+                } else {
+                    notification.querySelector('i').className = 'fas fa-check-circle';
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3500);
+            }
+            
+            // Tampilkan loading indicator
+            function showLoading() {
+                loading.style.display = 'block';
+                resultText.value = 'Sedang memproses file...';
+            }
+            
+            // Sembunyikan loading indicator
+            function hideLoading() {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
